@@ -393,6 +393,8 @@ persistence:
   # selector:
   #   matchLabel:
   #     netbox-storage: media
+  ## AccessMode
+  ## if ReadWriteOnce then netbox pod and CronJob needs to run on same node
   accessMode: ReadWriteOnce
   ##
   ## Persistant storage size request
@@ -400,7 +402,7 @@ persistence:
 
 ## Storage configuration for reports
 reportsPersistence:
-  enabled: false
+  enabled: true
   ##
   ## Existing claim to use
   existingClaim: ""
@@ -419,6 +421,8 @@ reportsPersistence:
   # selector:
   #   matchLabel:
   #     netbox-storage: reports
+  ## AccessMode
+  ## if ReadWriteOnce then netbox pod and CronJob needs to run on same node
   accessMode: ReadWriteOnce
   ##
   ## Persistant storage size request
@@ -528,7 +532,16 @@ tolerations: []
 updateStrategy: {}
   # type: RollingUpdate
 
-affinity: {}
+affinity: 
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - netbox
+      topologyKey: "kubernetes.io/hostname"
 
 ## Additional environment variables to set
 extraEnvs: []
@@ -690,8 +703,17 @@ worker:
   updateStrategy: {}
     # type: RollingUpdate
 
-  affinity: {}
-
+  affinity: 
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - netbox
+        topologyKey: "kubernetes.io/hostname"
+  
   ## Additional environment variables to set
   extraEnvs: []
   #  - name: FOO

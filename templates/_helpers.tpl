@@ -197,3 +197,18 @@ Volume mounts for .Values.extraConfig entries
   readOnly: true
 {{ end -}}
 {{- end }}
+
+{{- define "netbox.affinity.podAffinityOrNot" -}}
+{{- if .Values.persistence.enabled -}}
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - netbox
+      topologyKey: "kubernetes.io/hostname"
+{{ end -}}
+{{- end }}
